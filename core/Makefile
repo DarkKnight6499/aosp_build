@@ -1704,8 +1704,13 @@ built_ota_tools :=
 
 # We can't build static executables when SANITIZE_TARGET=address
 ifeq ($(strip $(SANITIZE_TARGET)),)
+ifeq ($(TARGET_ARCH),arm64)
 built_ota_tools += \
     $(call intermediates-dir-for,EXECUTABLES,updater,,,$(TARGET_PREFER_32_BIT))/updater
+else
+built_ota_tools += \
+	$(call intermediates-dir-for,EXECUTABLES,updater)/updater
+endif	
 endif
 
 $(BUILT_TARGET_FILES_PACKAGE): PRIVATE_OTA_TOOLS := $(built_ota_tools)
