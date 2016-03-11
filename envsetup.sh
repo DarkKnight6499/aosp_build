@@ -1747,6 +1747,7 @@ function provision()
         fi
     fi
     "$ANDROID_PRODUCT_OUT/provision-device" "$@"
+}
 
 function make()
 {
