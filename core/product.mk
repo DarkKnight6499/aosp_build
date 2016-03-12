@@ -182,10 +182,7 @@ endef
 #  2. Records the inheritance in the .INHERITS_FROM variable
 #  3. Records that we've visited this node, in ALL_PRODUCTS
 #
-define inherit-product
-  $(if $(findstring ../,$(1)),\
-    $(eval np := $(call normalize-paths,$(1))),\
-    $(eval np := $(strip $(1))))\	
+define inherit-product	
   $(foreach v,$(_product_var_list), \
       $(call inherit-product_append-var,$(v),$(1))) \
   $(call inherit-product_track-node,$(1))
