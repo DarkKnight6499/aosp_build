@@ -168,7 +168,8 @@ include $(BUILD_SYSTEM)/envsetup.mk
 # See envsetup.mk for a description of SCAN_EXCLUDE_DIRS
 FIND_LEAVES_EXCLUDES := $(addprefix --prune=, $(OUT_DIR) $(SCAN_EXCLUDE_DIRS) .repo .git)
 
-# The build system exposes several variables for where to find the kernel
+-include vendor/extra/BoardConfigExtra.mk
+#The build system exposes several variables for where to find the kernel
 # headers:
 #   TARGET_DEVICE_KERNEL_HEADERS is automatically created for the current
 #       device being built. It is set as $(TARGET_DEVICE_DIR)/kernel-headers,
