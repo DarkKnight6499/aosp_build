@@ -615,9 +615,12 @@ rs_generated_cpps := $(addprefix \
 $(call track-src-file-gen,$(renderscript_sources),$(rs_generated_cpps))
 
 # This is just a dummy rule to make sure gmake doesn't skip updating the dependents.
+$(proto_generated_headers): PRIVATE_PROTOC_OUTPUT := $(LOCAL_PROTOC_OUTPUT)
+$(proto_generated_headers): PRIVATE_PROTOC_INPUT := $(LOCAL_PATH)
 $(rs_generated_cpps) : $(RenderScript_file_stamp)
 	@echo "Updated RS generated cpp file $@."
 	$(hide) touch $@
+        $(copy-proto-files)
 
 my_c_includes += $(renderscript_intermediate)
 my_generated_sources += $(rs_generated_cpps)
@@ -655,13 +658,24 @@ proto_sources_fullpath := $(addprefix $(LOCAL_PATH)/, $(proto_sources))
 proto_generated_cpps := $(addprefix $(proto_gen_dir)/, \
     $(patsubst %.proto,%.pb$(my_proto_source_suffix),$(proto_sources_fullpath)))
 
+$(if $(PRIVATE_PROTOC_OUTPUT), \
+   $(eval proto_generated_path := $(dir $(subst $(PRIVATE_PROTOC_INPUT),$(PRIVATE_PROTOC_OUTPUT),$@)))
+   @mkdir -p $(dir $(proto_generated_path))
+   @echo "Protobuf relocation: $@ => $(proto_generated_path)"
+   @cp -f $@ $(proto_generated_path) ,)
+endef
+
 # Ensure the transform-proto-to-cc rule is only defined once in multilib build.
 ifndef $(my_host)$(LOCAL_MODULE_CLASS)_$(LOCAL_MODULE)_proto_defined
 $(proto_generated_cpps): PRIVATE_PROTO_INCLUDES := $(TOP)
 $(proto_generated_cpps): PRIVATE_PROTOC_FLAGS := $(LOCAL_PROTOC_FLAGS) $(my_protoc_flags)
 $(proto_generated_cpps): PRIVATE_RENAME_CPP_EXT := $(my_rename_cpp_ext)
 $(proto_generated_cpps): $(proto_gen_dir)/%.pb$(my_proto_source_suffix): %.proto $(my_protoc_deps) $(PROTOC)
+$(proto_generated_sources): PRIVATE_PROTOC_OUTPUT := $(LOCAL_PROTOC_OUTPUT)
+$(proto_generated_sources): PRIVATE_PROTOC_INPUT := $(LOCAL_PATH)
+$(proto_generated_sources): $(proto_generated_sources_dir)/%.pb$(my_proto_source_suffix): %.proto $(PROTOC)
 	$(transform-proto-to-cc)
+	$(copy-proto-files)
 
 $(my_host)$(LOCAL_MODULE_CLASS)_$(LOCAL_MODULE)_proto_defined := true
 endif
