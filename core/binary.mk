@@ -678,6 +678,17 @@ $(proto_generated_sources): $(proto_generated_sources_dir)/%.pb$(my_proto_source
 	$(transform-proto-to-cc)
 	$(copy-proto-files)
 
+$(if $(LOCAL_PROTOC_OUTPUT), \
+$(if $(call streq,$(LOCAL_PROTOC_OUTPUT),$(LOCAL_PATH)),, \
+  $(eval proto_relocated_headers := $(subst $(LOCAL_PATH),$(LOCAL_PROTOC_OUTPUT),$(proto_generated_headers))) \
+ ), )
+
+ifdef proto_relocated_headers
+$(proto_relocated_headers): $(proto_generated_headers)
+	echo "Refreshed header file $@."
+	$(hide) touch $@
+endif
+
 $(my_host)$(LOCAL_MODULE_CLASS)_$(LOCAL_MODULE)_proto_defined := true
 endif
 # Ideally we can generate the source directly into $(intermediates).
